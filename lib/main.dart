@@ -31,17 +31,26 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   List<Widget> items = [];
   List<String> tasks = [];
-  List<bool> checkedTasks = [];  
+  List<bool> checkedTasks = []; 
+  List<int> taskIds = []; 
+  int taskIdCounter = 0; 
 
   void addTask() {
     setState(() {
-      tasks.add("New Task ${tasks.length + 1}");
+      String taskName = "New Task ${tasks.length + 1}";
+      tasks.add(taskName);
       checkedTasks.add(false); 
+
+      int taskId = taskIdCounter++;  
+      taskIds.add(taskId);
+
       items.add(
         SizedBox(
+          key: Key(taskId.toString()),  
           width: 200,
           height: 100,
-          child: Row(children: [
+          child: Row(
+            children: [
               Checkbox(
                 value: checkedTasks.last,
                 onChanged: (bool? value) {
@@ -50,8 +59,11 @@ class _MyHomePageState extends State<MyHomePage> {
                   });
                 },
               ),
-              Text(tasks.last),
-              IconButton(onPressed: () {deleteTask(0);}, icon: Icon(Icons.restore_from_trash)),
+              Text(taskName),
+              IconButton(
+                onPressed: () => deleteTask(taskId), 
+                icon: Icon(Icons.restore_from_trash),
+              ),
             ],
           ),
         ),
@@ -59,11 +71,15 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
-  void deleteTask(int index){
+  void deleteTask(int taskId) {
     setState(() {
-      tasks.removeAt(index);
-      items.removeAt(index);
-      checkedTasks.removeAt(index);
+      int index = taskIds.indexOf(taskId); 
+      if (index != -1) {
+        tasks.removeAt(index);
+        checkedTasks.removeAt(index);
+        taskIds.removeAt(index);
+        items.removeAt(index);
+      }
     });
   }
 
