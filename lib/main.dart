@@ -13,6 +13,7 @@ class MyApp extends StatelessWidget {
       title: 'Task Manager',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+
       ),
       home: const MyHomePage(title: 'Task Manager'),
     );
@@ -29,57 +30,26 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  List<Widget> items = [];
   List<String> tasks = [];
   List<bool> checkedTasks = [];
-  List<int> taskIds = [];
-  int taskIdCounter = 0;
+  int taskIDCounter = 0;
 
   void addTask(String taskName) {
     setState(() {
       tasks.add(taskName);
-      checkedTasks.add(false); 
+      checkedTasks.add(false);
 
-      int taskId = taskIdCounter; 
-      taskIdCounter++;
-      taskIds.add(taskId);
-
-      items.add(
-        SizedBox(
-          key: Key(taskId.toString()), 
-          width: 200,
-          height: 100,
-          child: Row(
-            children: [
-              Checkbox(
-                value: checkedTasks[taskIds.indexOf(taskId)], 
-                onChanged: (bool? value) {
-                  setState(() {
-                    checkedTasks[taskIds.indexOf(taskId)] = value!; 
-                  });
-                },
-              ),
-              Text(taskName),
-              IconButton(
-                onPressed: () => deleteTask(taskId),
-                icon: Icon(Icons.restore_from_trash),
-              ),
-            ],
-          ),
-        ),
-      );
+      taskIDCounter++;
+      if(tasks.length > 7){
+        deleteTask(0);
+      }
     });
   }
 
-  void deleteTask(int taskId) {
+  void deleteTask(int index) {
     setState(() {
-      int index = taskIds.indexOf(taskId); 
-      if (index != -1) {
-        tasks.removeAt(index);
-        checkedTasks.removeAt(index);
-        taskIds.removeAt(index);
-        items.removeAt(index);
-      }
+      tasks.removeAt(index);
+      checkedTasks.removeAt(index);
     });
   }
 
@@ -109,7 +79,7 @@ class _MyHomePageState extends State<MyHomePage> {
               child: const Text("Add"),
               onPressed: () {
                 if (newTaskName.isNotEmpty) {
-                  addTask(newTaskName); 
+                  addTask(newTaskName);
                 }
                 Navigator.of(context).pop();
               },
@@ -118,6 +88,33 @@ class _MyHomePageState extends State<MyHomePage> {
         );
       },
     );
+  }
+
+  Color getColor(int index){
+      if(index == 0){
+        return Colors.red;
+      }
+      if(index == 1){
+        return Colors.orange;
+      }
+      if(index == 2){
+        return Colors.yellow;
+      }
+      if(index == 3){
+        return Colors.green;
+      }
+      if(index == 4){
+        return Colors.blue;
+      }
+      if(index == 5){
+        return Colors.indigo;
+      }
+      if(index == 6){
+        
+      }
+      
+      return Colors.deepPurple;
+      
   }
 
   @override
@@ -130,12 +127,42 @@ class _MyHomePageState extends State<MyHomePage> {
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: items,
+          children: List.generate(
+            tasks.length,
+            (index) => SizedBox(
+              key: Key(index.toString()),
+              width: 600,
+              height: 100,
+              child: Padding(padding: EdgeInsets.all(15),
+                child:ColoredBox(color: getColor(index), child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Checkbox(
+                    value: checkedTasks[index],
+                    onChanged: (bool? value) {
+                      setState(() {
+                        checkedTasks[index] = value!;
+                      });
+                    },
+                  ),
+                  Text(tasks[index], style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25),),
+                  SizedBox(width: 50, height: 50, child: IconButton(
+                    padding: EdgeInsets.all(0),
+                    color: Colors.white,
+                    onPressed: () => deleteTask(index),
+                    icon: Icon(Icons.restore_from_trash),
+                    
+                  ),)
+                ],
+              ),
+              )
+            )
+            ),
+          ),
         ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: showAddTaskDialog,
-        child: const Text("Add Task"),
+        child: const Text("Add\nTask"),
       ),
     );
   }
