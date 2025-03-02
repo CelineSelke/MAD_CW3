@@ -10,11 +10,11 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Task Manager',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: const MyHomePage(title: 'Task Manager'),
     );
   }
 }
@@ -31,37 +31,37 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   List<Widget> items = [];
   List<String> tasks = [];
-  List<bool> checkedTasks = []; 
-  List<int> taskIds = []; 
-  int taskIdCounter = 0; 
+  List<bool> checkedTasks = [];
+  List<int> taskIds = [];
+  int taskIdCounter = 0;
 
-  void addTask() {
+  void addTask(String taskName) {
     setState(() {
-      String taskName = "New Task ${tasks.length + 1}";
       tasks.add(taskName);
       checkedTasks.add(false); 
 
-      int taskId = taskIdCounter++;  
+      int taskId = taskIdCounter; 
+      taskIdCounter++;
       taskIds.add(taskId);
 
       items.add(
         SizedBox(
-          key: Key(taskId.toString()),  
+          key: Key(taskId.toString()), 
           width: 200,
           height: 100,
           child: Row(
             children: [
               Checkbox(
-                value: checkedTasks.last,
+                value: checkedTasks[taskIds.indexOf(taskId)], 
                 onChanged: (bool? value) {
                   setState(() {
-                    checkedTasks[checkedTasks.length - 1] = value!;
+                    checkedTasks[taskIds.indexOf(taskId)] = value!; 
                   });
                 },
               ),
               Text(taskName),
               IconButton(
-                onPressed: () => deleteTask(taskId), 
+                onPressed: () => deleteTask(taskId),
                 icon: Icon(Icons.restore_from_trash),
               ),
             ],
@@ -83,6 +83,43 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
+  void showAddTaskDialog() {
+    String newTaskName = "";
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Enter Task Name'),
+          content: TextField(
+            onChanged: (value) {
+              setState(() {
+                newTaskName = value;
+              });
+            },
+            decoration: const InputDecoration(hintText: "Enter Task Name"),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text("Cancel"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: const Text("Add"),
+              onPressed: () {
+                if (newTaskName.isNotEmpty) {
+                  addTask(newTaskName); 
+                }
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -97,7 +134,7 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: addTask,
+        onPressed: showAddTaskDialog,
         child: const Text("Add Task"),
       ),
     );
